@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Área Administrativa — Mimos com Encanto</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--blush); }
+  .login-box { width: 100%; max-width: 380px; margin: 0 20px; }
+  .login-box .brand { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 30px; text-align: center; }
+  .error-msg { color: var(--rose-darker); background: #FDECEC; padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 16px; display: none; }
+</style>
+</head>
+<body>
+
+<div class="login-box">
+  <div class="brand">
+    <span class="brand-badge" style="width:60px;height:60px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#B54B5A" stroke-width="1.6" width="28" height="28"><path d="M12 8c-1.8-3.5-6-3.2-6-.5C6 9.2 8.5 8 12 8Zm0 0c1.8-3.5 6-3.2 6-.5C18 9.2 15.5 8 12 8Z"/><rect x="4" y="8" width="16" height="10" rx="1.5"/><path d="M12 8v10"/></svg>
+    </span>
+    <span class="brand-name" style="font-size:1.7rem;">Mimos <em>com encanto</em><small>Área da Administradora</small></span>
+  </div>
+
+  <div class="card">
+    <div id="login-error" class="error-msg"></div>
+    <form id="login-form">
+      <div class="form-row">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" required autocomplete="username">
+      </div>
+      <div class="form-row">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" required autocomplete="current-password">
+      </div>
+      <button type="submit" id="btn-login" class="btn btn-primary btn-block">Entrar</button>
+    </form>
+  </div>
+  <p style="text-align:center;margin-top:18px;"><a href="../index.html" style="font-size:0.85rem;color:var(--text-muted);">← Voltar para o site</a></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>

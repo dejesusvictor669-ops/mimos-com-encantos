@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Administrativo — Mimos com Encanto</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .admin-header {
+    background: var(--rose-darker); color: var(--white);
+    padding: 18px 0;
+  }
+  .admin-header .container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .admin-header .brand-name { color: var(--white); }
+  .admin-header .btn-outline { border-color: rgba(255,255,255,0.5); color: var(--white); }
+  .admin-header .btn-outline:hover { background: rgba(255,255,255,0.12); }
+
+  .admin-tabs { display: flex; gap: 10px; margin: 30px 0; flex-wrap: wrap; }
+  .admin-tab {
+    padding: 11px 22px; border-radius: 999px; font-size: 0.9rem; font-weight: 500;
+    background: var(--white); border: 1px solid var(--line); color: var(--text-muted);
+  }
+  .admin-tab.active { background: var(--rose-deep); color: var(--white); border-color: var(--rose-deep); }
+
+  .admin-panel { display: none; }
+  .admin-panel.active { display: block; }
+
+  .admin-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+
+  .admin-table-wrap { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  table.admin-table { width: 100%; border-collapse: collapse; }
+  table.admin-table th { text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  table.admin-table td { padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 0.88rem; vertical-align: middle; }
+  table.admin-table tr:last-child td { border-bottom: none; }
+  table.admin-table img { width: 46px; height: 46px; object-fit: cover; border-radius: 8px; }
+  .row-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--line); color: var(--text-muted);
+  }
+  .icon-btn:hover { border-color: var(--rose-deep); color: var(--rose-deep); }
+  .icon-btn.danger:hover { border-color: #c0392b; color: #c0392b; }
+  .icon-btn svg { width: 15px; height: 15px; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(74,52,56,0.4); z-index: 400;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--cream); border-radius: var(--radius); max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 30px; }
+  .modal-box h3 { margin-bottom: 20px; }
+  .img-preview { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 12px; background: var(--blush); margin-bottom: 12px; display: none; }
+  .img-preview.show { display: block; }
+
+  @media (max-width: 700px) {
+    table.admin-table thead { display: none; }
+    table.admin-table, table.admin-table tbody, table.admin-table tr, table.admin-table td { display: block; width: 100%; }
+    table.admin-table tr { padding: 14px 18px; border-bottom: 1px solid var(--line); }
+    table.admin-table td { border: none; padding: 4px 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="admin-header">
+  <div class="container">
+    <span class="brand-name">Mimos <em>com encanto</em><small style="color:rgba(255,255,255,0.7);">Painel da Administradora</small></span>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <a href="../index.html" class="btn btn-outline btn-sm" target="_blank">Ver site</a>
+      <button class="btn btn-outline btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="produtos" onclick="mudarAba('produtos')">Produtos</button>
+    <button class="admin-tab" data-tab="avaliacoes" onclick="mudarAba('avaliacoes')">Avaliações</button>
+    <button class="admin-tab" data-tab="pedidos" onclick="mudarAba('pedidos')">Pedidos</button>
+  </div>
+
+  <!-- PRODUTOS -->
+  <section class="admin-panel active" id="painel-produtos">
+    <div class="admin-toolbar">
+      <h2 style="font-size:1.3rem;">Produtos</h2>
+      <button class="btn btn-primary btn-sm" onclick="abrirModalProduto()">+ Novo produto</button>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th></th><th>Nome</th><th>Preço</th><th>Ocasião</th><th>Categoria</th><th>Status</th><th></th></tr></thead>
+        <tbody id="tbody-produtos"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- AVALIAÇÕES -->
+  <section class="admin-panel" id="painel-avaliacoes">
+    <div class="admin-toolbar">
+      <h2 style="font-size:1.3rem;">Avaliações</h2>
+      <button class="btn btn-primary btn-sm" onclick="abrirModalAvaliacao()">+ Nova avaliação</button>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th></th><th>Cliente</th><th>Nota</th><th>Comentário</th><th></th></tr></thead>
+        <tbody id="tbody-avaliacoes"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PEDIDOS -->
+  <section class="admin-panel" id="painel-pedidos">
+    <div class="admin-toolbar">
+      <h2 style="font-size:1.3rem;">Pedidos</h2>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Código</th><th>Cliente</th><th>Total</th><th>Status</th><th>Data</th></tr></thead>
+        <tbody id="tbody-pedidos"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<!-- MODAL PRODUTO -->
+<div class="modal-overlay" id="modal-produto">
+  <div class="modal-box">
+    <h3 id="modal-produto-titulo">Novo produto</h3>
+    <form id="form-produto" onsubmit="salvarProduto(event)">
+      <input type="hidden" id="produto-id">
+      <img class="img-preview" id="produto-img-preview">
+      <div class="form-row">
+        <label for="produto-imagem">Foto do produto</label>
+        <input type="file" id="produto-imagem" accept="image/*" onchange="previsualizarImagem(event, 'produto-img-preview')">
+      </div>
+      <div class="form-row"><label for="produto-nome">Nome</label><input type="text" id="produto-nome" required></div>
+      <div class="form-row"><label for="produto-descricao">Descrição</label><textarea id="produto-descricao" rows="2"></textarea></div>
+      <div class="form-row"><label for="produto-preco">Preço (R$)</label><input type="number" id="produto-preco" step="0.01" min="0" required></div>
+      <div class="form-row">
+        <label for="produto-ocasiao">Ocasião</label>
+        <select id="produto-ocasiao">
+          <option value="outro">Qualquer ocasião</option>
+          <option value="dia-das-maes">Dia das Mães</option>
+          <option value="dia-dos-pais">Dia dos Pais</option>
+          <option value="namorados">Dia dos Namorados</option>
+          <option value="aniversario">Aniversário</option>
+          <option value="natal">Natal</option>
+          <option value="amigo-secreto">Amigo Secreto</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="produto-categoria">Tipo de presente</label>
+        <select id="produto-categoria">
+          <option value="cestas">Cestas Personalizadas</option>
+          <option value="canecas">Canecas & Copos</option>
+          <option value="decoracao">Decoração de Festas</option>
+          <option value="lembrancinhas">Lembrancinhas</option>
+          <option value="kits">Kits & Presentes Especiais</option>
+          <option value="outro">Outros</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label><input type="checkbox" id="produto-ativo" checked style="width:auto;display:inline-block;margin-right:8px;">Visível no site</label>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button type="button" class="btn btn-outline btn-block" onclick="fecharModais()">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-block" id="btn-salvar-produto">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL AVALIAÇÃO -->
+<div class="modal-overlay" id="modal-avaliacao">
+  <div class="modal-box">
+    <h3>Nova avaliação</h3>
+    <form id="form-avaliacao" onsubmit="salvarAvaliacao(event)">
+      <input type="hidden" id="avaliacao-id">
+      <img class="img-preview" id="avaliacao-img-preview">
+      <div class="form-row">
+        <label for="avaliacao-imagem">Foto do pedido</label>
+        <input type="file" id="avaliacao-imagem" accept="image/*" onchange="previsualizarImagem(event, 'avaliacao-img-preview')">
+      </div>
+      <div class="form-row"><label for="avaliacao-nome">Nome do cliente</label><input type="text" id="avaliacao-nome" required></div>
+      <div class="form-row">
+        <label for="avaliacao-nota">Nota</label>
+        <select id="avaliacao-nota">
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★☆</option>
+          <option value="3">★★★☆☆</option>
+          <option value="2">★★☆☆☆</option>
+          <option value="1">★☆☆☆☆</option>
+        </select>
+      </div>
+      <div class="form-row"><label for="avaliacao-comentario">Comentário</label><textarea id="avaliacao-comentario" rows="3"></textarea></div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button type="button" class="btn btn-outline btn-block" onclick="fecharModais()">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-block" id="btn-salvar-avaliacao">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>
