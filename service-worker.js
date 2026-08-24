@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mimos-com-encanto-v1';
+const CACHE_NAME = 'mimos-com-encanto-v2';
 const APP_SHELL = [
   './',
   './index.html',

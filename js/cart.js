@@ -137,21 +137,23 @@ async function finalizarPedido(event) {
   const subtotal = totalCarrinho();
   const total = subtotal + valorEntrega;
 
-  const { error } = await supabaseClient.from('pedidos').insert({
-    codigo_rastreio: codigo,
-    nome_cliente: nome,
-    telefone_cliente: telefone,
-    itens: itens,
-    total: total,
-    observacoes: obs,
-    status: 'pendente',
-    metodo_entrega: metodoEntrega,
-    forma_pagamento: formaPagamento,
-    valor_entrega: valorEntrega
-  });
+  try {
+    const { error } = await supabaseClient.from('pedidos').insert({
+      codigo_rastreio: codigo,
+      nome_cliente: nome,
+      telefone_cliente: telefone,
+      itens,
+      total,
+      observacoes: obs,
+      status: 'pendente',
+      metodo_entrega: metodoEntrega,
+      forma_pagamento: formaPagamento,
+      valor_entrega: valorEntrega
+    });
 
-  if (error) {
-    console.error(error);
+    if (error) throw error;
+  } catch (error) {
+    console.error('Erro ao salvar pedido:', error);
     mostrarToast('Não foi possível enviar o pedido. Tente novamente.');
     btn.disabled = false;
     btn.textContent = 'Finalizar pedido no WhatsApp';

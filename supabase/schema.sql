@@ -55,6 +55,13 @@ create table if not exists pedidos (
   atualizado_em timestamptz default now()
 );
 
+-- Mantém projetos já existentes compatíveis com o checkout atual.
+alter table pedidos add column if not exists valor_entrega numeric(10,2) default 0;
+alter table pedidos add column if not exists metodo_entrega text default 'entrega';
+alter table pedidos add column if not exists forma_pagamento text default 'pix';
+alter table pedidos add column if not exists observacoes text;
+alter table pedidos add column if not exists atualizado_em timestamptz default now();
+
 -- ============================================================================
 -- Row Level Security (RLS)
 -- ============================================================================
