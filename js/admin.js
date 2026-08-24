@@ -72,6 +72,14 @@ function previsualizarImagem(event, idPreview) {
   preview.classList.add('show');
 }
 
+function comLimiteDeTempo(promessa, mensagem) {
+  let timer;
+  const limite = new Promise((resolve, reject) => {
+    timer = setTimeout(() => reject(new Error(mensagem)), 15000);
+  });
+  return Promise.race([promessa, limite]).finally(() => clearTimeout(timer));
+}
+
 // Envia um arquivo para o Storage do Supabase e retorna a URL pública
 async function enviarImagem(file, bucket) {
   if (!file) return null;
@@ -154,11 +162,11 @@ async function salvarProduto(event) {
     const id = document.getElementById('produto-id').value;
     const arquivo = document.getElementById('produto-imagem').files[0];
     const arquivosExtras = [...document.getElementById('produto-imagens').files || []];
-    const imagemUrl = arquivo ? await enviarImagem(arquivo, 'produtos') : undefined;
+    const imagemUrl = arquivo ? await comLimiteDeTempo(enviarImagem(arquivo, 'produtos'), 'O upload da imagem demorou demais.') : undefined;
 
     const imagensExtras = [];
     for (const file of arquivosExtras) {
-      const url = await enviarImagem(file, 'produtos');
+      const url = await comLimiteDeTempo(enviarImagem(file, 'produtos'), 'O upload da imagem demorou demais.');
       if (url) imagensExtras.push(url);
     }
 
@@ -173,9 +181,12 @@ async function salvarProduto(event) {
     };
     if (imagemUrl) payload.imagem_url = imagemUrl;
 
-    const { error } = id
-      ? await supabaseClient.from('produtos').update(payload).eq('id', id)
-      : await supabaseClient.from('produtos').insert(payload);
+    const { error } = await comLimiteDeTempo(
+      id
+        ? supabaseClient.from('produtos').update(payload).eq('id', id)
+        : supabaseClient.from('produtos').insert(payload),
+      'O Supabase demorou demais para responder.'
+    );
 
     if (error) throw error;
 
@@ -183,8 +194,8 @@ async function salvarProduto(event) {
     fecharModais();
     carregarProdutosAdmin();
   } catch (err) {
-    console.error(err);
-    mostrarToast('Não foi possível salvar o produto.');
+    console.error('Erro ao salvar produto:', err);
+    mostrarToast(err.message || 'Não foi possível salvar o produto.');
   } finally {
     btn.disabled = false; btn.textContent = 'Salvar';
   }
@@ -237,7 +248,7 @@ async function salvarAvaliacao(event) {
 
   try {
     const arquivo = document.getElementById('avaliacao-imagem').files[0];
-    const fotoUrl = arquivo ? await enviarImagem(arquivo, 'avaliacoes') : null;
+    const fotoUrl = arquivo ? await comLimiteDeTempo(enviarImagem(arquivo, 'avaliacoes'), 'O upload da imagem demorou demais.') : null;
 
     const payload = {
       nome_cliente: document.getElementById('avaliacao-nome').value.trim(),
@@ -246,15 +257,18 @@ async function salvarAvaliacao(event) {
       foto_url: fotoUrl
     };
 
-    const { error } = await supabaseClient.from('avaliacoes').insert(payload);
+    const { error } = await comLimiteDeTempo(
+      supabaseClient.from('avaliacoes').insert(payload),
+      'O Supabase demorou demais para responder.'
+    );
     if (error) throw error;
 
     mostrarToast('Avaliação adicionada!');
     fecharModais();
     carregarAvaliacoesAdmin();
   } catch (err) {
-    console.error(err);
-    mostrarToast('Não foi possível salvar a avaliação.');
+    console.error('Erro ao salvar avaliação:', err);
+    mostrarToast(err.message || 'Não foi possível salvar a avaliação.');
   } finally {
     btn.disabled = false; btn.textContent = 'Salvar';
   }
