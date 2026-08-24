@@ -96,7 +96,10 @@ async function enviarImagem(file, bucket) {
 
 async function carregarProdutosAdmin() {
   const tbody = document.getElementById('tbody-produtos');
-  const { data, error } = await supabaseClient.from('produtos').select('*').order('criado_em', { ascending: false });
+  const { data, error } = await supabaseClient
+    .from('produtos')
+    .select('id,nome,descricao,preco,imagem_url,ocasiao,categoria,ativo,destaque,criado_em')
+    .order('criado_em', { ascending: false });
 
   if (error) { tbody.innerHTML = `<tr><td colspan="7">Erro ao carregar produtos.</td></tr>`; return; }
   if (!data || data.length === 0) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Nenhum produto cadastrado ainda.</td></tr>`; return; }

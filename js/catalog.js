@@ -12,7 +12,7 @@ async function carregarProdutos() {
 
   const { data, error } = await supabaseClient
     .from('produtos')
-    .select('*')
+    .select('id,nome,descricao,preco,imagem_url,ocasiao,categoria,ativo,destaque,criado_em')
     .eq('ativo', true)
     .order('criado_em', { ascending: false });
 
