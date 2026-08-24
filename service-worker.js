@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mimos-com-encanto-v2';
+const CACHE_NAME = 'mimos-com-encanto-v3';
 const APP_SHELL = [
   './',
   './index.html',
@@ -35,6 +35,10 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  // Dados do Supabase e recursos externos precisam sempre refletir o estado atual.
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
