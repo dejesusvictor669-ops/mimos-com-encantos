@@ -164,9 +164,13 @@ async function finalizarPedido(event) {
 
   const pagamentoTexto = formaPagamento === 'pix'
     ? 'Pix'
-    : formaPagamento === 'transferencia'
-      ? 'Transferência'
-      : 'Dinheiro';
+    : formaPagamento === 'cartao'
+      ? 'Cartão à vista'
+      : formaPagamento === 'cartao-parcelado'
+        ? 'Cartão parcelado'
+        : formaPagamento === 'transferencia'
+          ? 'Transferência'
+          : 'Dinheiro';
 
   const mensagem = criarMensagemPedido({
     nome,
