@@ -796,6 +796,33 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   width: 100%; padding: 11px 14px; border-radius: 10px;
   border: 1px solid var(--line); font-family: var(--font-body); font-size: 0.9rem;
   background: var(--white);
+  color: var(--text-dark);
+}
+
+.cart-form-row select,
+.form-row select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--rose-deep) 50%), linear-gradient(135deg, var(--rose-deep) 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 38px;
+}
+
+.cart-form-row select option,
+.form-row select option {
+  background: var(--white);
+  color: var(--text-dark);
+}
+
+.cart-form-row select option:checked,
+.form-row select option:checked,
+.cart-form-row select option:hover,
+.form-row select option:hover {
+  background: var(--blush);
+  color: var(--text-dark);
 }
 
 .cart-summary {
@@ -829,6 +856,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   width: 100%; padding: 12px 15px; border-radius: 10px;
   border: 1px solid var(--line); font-family: var(--font-body); font-size: 0.92rem;
   background: var(--cream);
+  color: var(--text-dark);
 }
 .form-row input:focus, .form-row textarea:focus, .form-row select:focus { background: var(--white); }
 
