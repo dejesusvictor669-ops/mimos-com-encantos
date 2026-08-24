@@ -112,11 +112,27 @@
   <section class="admin-panel" id="painel-pedidos">
     <div class="admin-toolbar">
       <h2 style="font-size:1.3rem;">Pedidos</h2>
+      <div class="admin-pedidos-tools">
+        <label class="admin-filter-wrap">
+          <span>Filtrar status</span>
+          <select id="filtro-status-pedidos" onchange="filtrarPedidosAdmin(this.value)">
+            <option value="todos">Todos</option>
+            <option value="pendente">Pendente</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="preparando">Em preparação</option>
+            <option value="pronto">Pronto</option>
+            <option value="entregue">Entregue</option>
+          </select>
+        </label>
+      </div>
     </div>
+
+    <div class="admin-stats" id="resumo-pedidos"></div>
+
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>Código</th><th>Cliente</th><th>Total</th><th>Status</th><th>Data</th></tr></thead>
-        <tbody id="tbody-pedidos"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Carregando...</td></tr></tbody>
+        <thead><tr><th>Código</th><th>Cliente</th><th>Total</th><th>Entrega</th><th>Status</th><th>Data</th><th></th></tr></thead>
+        <tbody id="tbody-pedidos"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Carregando...</td></tr></tbody>
       </table>
     </div>
   </section>
@@ -130,8 +146,16 @@
       <input type="hidden" id="produto-id">
       <img class="img-preview" id="produto-img-preview">
       <div class="form-row">
-        <label for="produto-imagem">Foto do produto</label>
+        <label for="produto-imagem">Foto principal</label>
         <input type="file" id="produto-imagem" accept="image/*" onchange="previsualizarImagem(event, 'produto-img-preview')">
+      </div>
+      <div class="form-row">
+        <label for="produto-imagens">Mais fotos da galeria</label>
+        <input type="file" id="produto-imagens" accept="image/*" multiple>
+      </div>
+      <div class="form-row">
+        <label>Pré-visualização da galeria</label>
+        <div class="produto-galeria-preview" id="produto-galeria-preview"></div>
       </div>
       <div class="form-row"><label for="produto-nome">Nome</label><input type="text" id="produto-nome" required></div>
       <div class="form-row"><label for="produto-descricao">Descrição</label><textarea id="produto-descricao" rows="2"></textarea></div>

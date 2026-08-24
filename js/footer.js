@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <li><a href="index.html#catalogo">Catálogo</a></li>
             <li><a href="avaliacoes.html">Avaliações</a></li>
             <li><a href="acompanhar-pedido.html">Acompanhar pedido</a></li>
+            <li><a href="faq.html">FAQ & Política</a></li>
           </ul>
         </div>
         <div class="footer-col">

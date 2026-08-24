@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<title>Avaliações — Mimos com Encanto</title>
-<meta name="description" content="Veja o que nossos clientes acharam dos presentes da Mimos com Encanto.">
+<title>Detalhes do Produto — Mimos com Encanto</title>
+<meta name="description" content="Conheça detalhes, personalização e o valor dos presentes da Mimos com Encanto.">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -19,10 +19,9 @@
     <button class="nav-toggle" onclick="toggleMobileNav()" aria-label="Abrir menu"><span></span><span></span><span></span></button>
     <ul class="nav-links">
       <li><a href="index.html">Início</a></li>
-      <li><a href="index.html#catalogo">Catálogo</a></li>
-      <li><a href="avaliacoes.html" class="active">Avaliações</a></li>
+      <li><a href="index.html#catalogo" class="active">Catálogo</a></li>
+      <li><a href="avaliacoes.html">Avaliações</a></li>
       <li><a href="acompanhar-pedido.html">Acompanhar Pedido</a></li>
-      <li><a href="faq.html">FAQ</a></li>
     </ul>
     <div class="nav-actions">
       <button class="cart-btn" onclick="abrirCarrinho()" aria-label="Abrir carrinho">
@@ -33,19 +32,11 @@
   </nav>
 </header>
 
-<section class="hero" style="padding-bottom:50px;">
-  <div class="container" style="text-align:center;">
-    <span class="hero-eyebrow" style="justify-content:center;">Carinho que vira depoimento</span>
-    <h1 style="max-width:640px;margin:0 auto;">O que dizem sobre nossos mimos</h1>
-    <p style="max-width:520px;margin:16px auto 0;">Cada foto aqui é um presente que já chegou a um lar cheio de carinho.</p>
-  </div>
-</section>
-
-<section class="section">
+<main class="section product-detail-page">
   <div class="container">
-    <div class="review-grid" id="review-grid"></div>
+    <div id="product-detail"></div>
   </div>
-</section>
+</main>
 
 <div id="footer-placeholder"></div>
 
@@ -61,7 +52,10 @@
     <form id="checkout-form" onsubmit="finalizarPedido(event)">
       <div class="cart-form-row"><label for="checkout-nome">Seu nome</label><input type="text" id="checkout-nome" required></div>
       <div class="cart-form-row"><label for="checkout-telefone">WhatsApp para contato</label><input type="tel" id="checkout-telefone" required></div>
+      <div class="cart-form-row"><label for="checkout-entrega">Forma de entrega</label><select id="checkout-entrega"><option value="entrega">Entrega em casa (+ R$ 15,00)</option><option value="retirada">Retirar na loja</option></select></div>
+      <div class="cart-form-row"><label for="checkout-pagamento">Forma de pagamento</label><select id="checkout-pagamento"><option value="pix">Pix</option><option value="transferencia">Transferência</option><option value="dinheiro">Dinheiro</option></select></div>
       <div class="cart-form-row"><label for="checkout-obs">Observações (opcional)</label><textarea id="checkout-obs" rows="2"></textarea></div>
+      <div class="cart-summary"><div><span>Subtotal</span><strong id="checkout-subtotal">R$ 0,00</strong></div><div><span>Entrega</span><strong id="checkout-entrega-valor">R$ 15,00</strong></div><div class="total"><span>Total</span><strong id="checkout-total">R$ 0,00</strong></div></div>
       <button type="submit" id="btn-finalizar" class="btn btn-primary btn-block">Finalizar pedido no WhatsApp</button>
     </form>
   </div>
@@ -75,8 +69,8 @@
 <script src="js/supabase-config.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/cart.js"></script>
-<script src="js/reviews.js"></script>
 <script src="js/footer.js"></script>
+<script src="js/produto.js"></script>
 <script>
   document.getElementById('whatsapp-float').href = linkWhatsapp('Olá! Vim pelo site e gostaria de saber mais sobre os presentes da Mimos com Encanto 🎁');
 </script>

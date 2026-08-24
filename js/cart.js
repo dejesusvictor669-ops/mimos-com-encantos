@@ -50,6 +50,20 @@ function totalCarrinho() {
   return lerCarrinho().reduce((soma, i) => soma + i.preco * i.quantidade, 0);
 }
 
+function atualizarResumoCheckout() {
+  const subtotal = totalCarrinho();
+  const entregaSelect = document.getElementById('checkout-entrega');
+  const valorEntrega = entregaSelect && entregaSelect.value === 'retirada' ? 0 : 15;
+
+  const subtotalEl = document.getElementById('checkout-subtotal');
+  const valorEntregaEl = document.getElementById('checkout-entrega-valor');
+  const totalEl = document.getElementById('checkout-total');
+
+  if (subtotalEl) subtotalEl.textContent = formatarPreco(subtotal);
+  if (valorEntregaEl) valorEntregaEl.textContent = formatarPreco(valorEntrega);
+  if (totalEl) totalEl.textContent = formatarPreco(subtotal + valorEntrega);
+}
+
 function atualizarContadorCarrinho() {
   const total = lerCarrinho().reduce((s, i) => s + i.quantidade, 0);
   document.querySelectorAll('.cart-count').forEach(el => {
@@ -84,6 +98,7 @@ function renderizarCarrinho() {
 
   const totalEl = document.getElementById('cart-total-value');
   if (totalEl) totalEl.textContent = formatarPreco(totalCarrinho());
+  atualizarResumoCheckout();
 }
 
 function abrirCarrinho() {
@@ -108,6 +123,9 @@ async function finalizarPedido(event) {
   const nome = document.getElementById('checkout-nome').value.trim();
   const telefone = document.getElementById('checkout-telefone').value.trim();
   const obs = document.getElementById('checkout-obs').value.trim();
+  const metodoEntrega = document.getElementById('checkout-entrega')?.value || 'entrega';
+  const formaPagamento = document.getElementById('checkout-pagamento')?.value || 'pix';
+  const valorEntrega = metodoEntrega === 'retirada' ? 0 : 15;
 
   if (!nome || !telefone) { mostrarToast('Preencha seu nome e telefone.'); return; }
 
@@ -116,7 +134,8 @@ async function finalizarPedido(event) {
   btn.textContent = 'Enviando pedido...';
 
   const codigo = gerarCodigoRastreio();
-  const total = totalCarrinho();
+  const subtotal = totalCarrinho();
+  const total = subtotal + valorEntrega;
 
   const { error } = await supabaseClient.from('pedidos').insert({
     codigo_rastreio: codigo,
@@ -125,27 +144,37 @@ async function finalizarPedido(event) {
     itens: itens,
     total: total,
     observacoes: obs,
-    status: 'pendente'
+    status: 'pendente',
+    metodo_entrega: metodoEntrega,
+    forma_pagamento: formaPagamento,
+    valor_entrega: valorEntrega
   });
 
   if (error) {
     console.error(error);
     mostrarToast('Não foi possível enviar o pedido. Tente novamente.');
     btn.disabled = false;
-    btn.textContent = 'Finalizar pedido';
+    btn.textContent = 'Finalizar pedido no WhatsApp';
     return;
   }
 
-  // Monta mensagem para o WhatsApp
   const linhas = itens.map(i => `• ${i.quantidade}x ${i.nome} — ${formatarPreco(i.preco * i.quantidade)}`).join('\n');
+  const entregaTexto = metodoEntrega === 'retirada'
+    ? 'Retirada na loja'
+    : `Entrega em casa (+ ${formatarPreco(valorEntrega)})`;
+
   const mensagem =
 `Olá! Gostaria de confirmar meu pedido 🎁
 
 *Código do pedido:* ${codigo}
 *Nome:* ${nome}
+*Forma de entrega:* ${entregaTexto}
+*Pagamento:* ${formaPagamento === 'pix' ? 'Pix' : formaPagamento === 'transferencia' ? 'Transferência' : 'Dinheiro'}
 
 ${linhas}
 
+*Subtotal:* ${formatarPreco(subtotal)}
+*Entrega:* ${formatarPreco(valorEntrega)}
 *Total:* ${formatarPreco(total)}
 ${obs ? `\n*Observações:* ${obs}` : ''}
 
@@ -156,6 +185,11 @@ Aguardo a confirmação, obrigado(a)!`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const entregaSelect = document.getElementById('checkout-entrega');
+  if (entregaSelect) {
+    entregaSelect.addEventListener('change', atualizarResumoCheckout);
+  }
+
   atualizarContadorCarrinho();
   renderizarCarrinho();
 });

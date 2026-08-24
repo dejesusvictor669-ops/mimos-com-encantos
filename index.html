@@ -6,6 +6,8 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>Mimos com Encanto — Presentes feitos com carinho</title>
 <meta name="description" content="Cestas personalizadas, canecas, decoração de festas e lembrancinhas para todas as ocasiões. Feito com carinho, do jeitinho que você imaginou.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#b54b5a">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -28,6 +30,7 @@
       <li><a href="index.html#catalogo">Catálogo</a></li>
       <li><a href="avaliacoes.html">Avaliações</a></li>
       <li><a href="acompanhar-pedido.html">Acompanhar Pedido</a></li>
+      <li><a href="faq.html">FAQ</a></li>
     </ul>
 
     <div class="nav-actions">
@@ -103,6 +106,29 @@
         <p>Receba seu mimo e compartilhe uma foto pra gente!</p>
       </div>
     </div>
+
+    <div class="trust-strip">
+      <div class="trust-item">
+        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5.5A15 15 0 0 0 12 2a15 15 0 0 0-5 3.5"/><path d="M7 18.5A15 15 0 0 1 12 22a15 15 0 0 1 5-3.5"/></svg></div>
+        <h4>Entrega com cuidado</h4>
+        <p>Embalagem e atenção para cada detalhe.</p>
+      </div>
+      <div class="trust-item">
+        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5h18"/><path d="M6 5.5h12a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-7a3 3 0 0 1 3-3Z"/><path d="M8 13h8"/></svg></div>
+        <h4>Pagamento fácil</h4>
+        <p>Pix, transferência ou acordo direto no WhatsApp.</p>
+      </div>
+      <div class="trust-item">
+        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 11 2 2 5-5"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div>
+        <h4>Rastreio claro</h4>
+        <p>Você acompanha cada etapa do pedido em tempo real.</p>
+      </div>
+      <div class="trust-item">
+        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-8.3C.8 9.8 2.8 5 6.8 5c2.1 0 3.5 1.2 4.2 2.3C11.7 6.2 13.1 5 15.2 5c4 0 6 4.8 4.3 7.7C19 16.5 12 21 12 21Z"/></svg></div>
+        <h4>Foco no carinho</h4>
+        <p>Presentes pensados para emocionar de verdade.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -144,8 +170,28 @@
         <input type="tel" id="checkout-telefone" required placeholder="(31) 9 9999-9999">
       </div>
       <div class="cart-form-row">
+        <label for="checkout-entrega">Forma de entrega</label>
+        <select id="checkout-entrega">
+          <option value="entrega">Entrega em casa (+ R$ 15,00)</option>
+          <option value="retirada">Retirar na loja</option>
+        </select>
+      </div>
+      <div class="cart-form-row">
+        <label for="checkout-pagamento">Forma de pagamento</label>
+        <select id="checkout-pagamento">
+          <option value="pix">Pix</option>
+          <option value="transferencia">Transferência</option>
+          <option value="dinheiro">Dinheiro</option>
+        </select>
+      </div>
+      <div class="cart-form-row">
         <label for="checkout-obs">Observações (opcional)</label>
         <textarea id="checkout-obs" rows="2" placeholder="Cor, mensagem no cartão, data de entrega..."></textarea>
+      </div>
+      <div class="cart-summary">
+        <div><span>Subtotal</span><strong id="checkout-subtotal">R$ 0,00</strong></div>
+        <div><span>Entrega</span><strong id="checkout-entrega-valor">R$ 15,00</strong></div>
+        <div class="total"><span>Total</span><strong id="checkout-total">R$ 0,00</strong></div>
       </div>
       <button type="submit" id="btn-finalizar" class="btn btn-primary btn-block">Finalizar pedido no WhatsApp</button>
     </form>

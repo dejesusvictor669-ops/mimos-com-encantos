@@ -1,0 +1,18 @@
+{
+  "name": "Mimos com Encanto",
+  "short_name": "Mimos",
+  "description": "Presentes personalizados com carinho, entrega e acompanhamento de pedidos.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#fdf6f5",
+  "theme_color": "#b54b5a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

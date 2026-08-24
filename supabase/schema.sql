@@ -16,6 +16,7 @@ create table if not exists produtos (
   descricao text,
   preco numeric(10,2) not null,
   imagem_url text,
+  imagens_adicionais jsonb default '[]'::jsonb,
   ocasiao text default 'outro',   -- ex: dia-das-maes, namorados, aniversario, dia-dos-pais, outro
   categoria text default 'outro', -- ex: cestas, canecas, decoracao, lembrancinhas, kits
   ativo boolean default true,
@@ -45,6 +46,9 @@ create table if not exists pedidos (
   telefone_cliente text,
   itens jsonb not null,
   total numeric(10,2),
+  valor_entrega numeric(10,2) default 0,
+  metodo_entrega text default 'entrega', -- entrega / retirada
+  forma_pagamento text default 'pix', -- pix / transferencia / dinheiro
   status text default 'pendente', -- pendente, confirmado, preparando, pronto, entregue
   observacoes text,
   criado_em timestamptz default now(),

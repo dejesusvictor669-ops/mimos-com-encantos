@@ -114,4 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = emAdmin ? 'login.html' : 'admin/login.html';
     }
   });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+    });
+  }
 });

@@ -114,6 +114,7 @@ function abrirModalProduto() {
   document.getElementById('form-produto').reset();
   document.getElementById('produto-id').value = '';
   document.getElementById('produto-img-preview').classList.remove('show');
+  document.getElementById('produto-galeria-preview').innerHTML = '';
   document.getElementById('modal-produto-titulo').textContent = 'Novo produto';
   document.getElementById('modal-produto').classList.add('open');
 }
@@ -128,6 +129,18 @@ function editarProduto(p) {
   document.getElementById('produto-ativo').checked = p.ativo;
   const preview = document.getElementById('produto-img-preview');
   if (p.imagem_url) { preview.src = p.imagem_url; preview.classList.add('show'); } else { preview.classList.remove('show'); }
+
+  const galeria = document.getElementById('produto-galeria-preview');
+  galeria.innerHTML = '';
+  const imagensExtras = Array.isArray(p.imagens_adicionais) ? p.imagens_adicionais : [];
+  imagensExtras.forEach((url) => {
+    const thumb = document.createElement('img');
+    thumb.src = url;
+    thumb.alt = 'Imagem extra';
+    thumb.className = 'produto-galeria-thumb';
+    galeria.appendChild(thumb);
+  });
+
   document.getElementById('modal-produto-titulo').textContent = 'Editar produto';
   document.getElementById('modal-produto').classList.add('open');
 }
@@ -140,7 +153,14 @@ async function salvarProduto(event) {
   try {
     const id = document.getElementById('produto-id').value;
     const arquivo = document.getElementById('produto-imagem').files[0];
+    const arquivosExtras = [...document.getElementById('produto-imagens').files || []];
     const imagemUrl = arquivo ? await enviarImagem(arquivo, 'produtos') : undefined;
+
+    const imagensExtras = [];
+    for (const file of arquivosExtras) {
+      const url = await enviarImagem(file, 'produtos');
+      if (url) imagensExtras.push(url);
+    }
 
     const payload = {
       nome: document.getElementById('produto-nome').value.trim(),
@@ -148,7 +168,8 @@ async function salvarProduto(event) {
       preco: Number(document.getElementById('produto-preco').value),
       ocasiao: document.getElementById('produto-ocasiao').value,
       categoria: document.getElementById('produto-categoria').value,
-      ativo: document.getElementById('produto-ativo').checked
+      ativo: document.getElementById('produto-ativo').checked,
+      imagens_adicionais: imagensExtras
     };
     if (imagemUrl) payload.imagem_url = imagemUrl;
 
@@ -253,31 +274,125 @@ async function excluirAvaliacao(id) {
 
 const STATUS_OPCOES = ['pendente', 'confirmado', 'preparando', 'pronto', 'entregue'];
 
+let PEDIDOS_ADMIN = [];
+
+function renderizarResumoPedidosAdmin(data) {
+  const wrap = document.getElementById('resumo-pedidos');
+  if (!wrap) return;
+
+  const total = data.length;
+  const pendentes = data.filter(p => p.status === 'pendente').length;
+  const confirmados = data.filter(p => p.status === 'confirmado').length;
+  const entregues = data.filter(p => p.status === 'entregue').length;
+  const faturamento = data.reduce((soma, p) => soma + Number(p.total || 0), 0);
+
+  wrap.innerHTML = `
+    <div class="admin-stat">
+      <span>Total</span>
+      <strong>${total}</strong>
+    </div>
+    <div class="admin-stat warning">
+      <span>Pendentes</span>
+      <strong>${pendentes}</strong>
+    </div>
+    <div class="admin-stat info">
+      <span>Confirmados</span>
+      <strong>${confirmados}</strong>
+    </div>
+    <div class="admin-stat success">
+      <span>Entregues</span>
+      <strong>${entregues}</strong>
+    </div>
+    <div class="admin-stat total">
+      <span>Faturamento</span>
+      <strong>${formatarPreco(faturamento)}</strong>
+    </div>
+  `;
+}
+
 async function carregarPedidosAdmin() {
   const tbody = document.getElementById('tbody-pedidos');
   const { data, error } = await supabaseClient.from('pedidos').select('*').order('criado_em', { ascending: false });
 
-  if (error) { tbody.innerHTML = `<tr><td colspan="5">Erro ao carregar pedidos.</td></tr>`; return; }
-  if (!data || data.length === 0) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Nenhum pedido recebido ainda.</td></tr>`; return; }
-
-  tbody.innerHTML = data.map(p => `
-    <tr>
-      <td><strong>${p.codigo_rastreio}</strong></td>
-      <td>${p.nome_cliente || '—'}<br><span style="color:var(--text-muted);font-size:.78rem;">${p.telefone_cliente || ''}</span></td>
-      <td>${formatarPreco(p.total)}</td>
-      <td>
-        <select onchange="atualizarStatusPedido('${p.id}', this.value)" style="padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-size:.82rem;">
-          ${STATUS_OPCOES.map(s => `<option value="${s}" ${s === p.status ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
-        </select>
-      </td>
-      <td>${new Date(p.criado_em).toLocaleDateString('pt-BR')}</td>
-    </tr>`).join('');
+  if (error) { tbody.innerHTML = `<tr><td colspan="7">Erro ao carregar pedidos.</td></tr>`; return; }
+  PEDIDOS_ADMIN = data || [];
+  renderizarResumoPedidosAdmin(PEDIDOS_ADMIN);
+  filtrarPedidosAdmin(document.getElementById('filtro-status-pedidos')?.value || 'todos');
 }
 
-async function atualizarStatusPedido(id, novoStatus) {
+function filtrarPedidosAdmin(statusFiltrado = 'todos') {
+  const tbody = document.getElementById('tbody-pedidos');
+  const lista = statusFiltrado === 'todos' ? PEDIDOS_ADMIN : PEDIDOS_ADMIN.filter(p => p.status === statusFiltrado);
+
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Nenhum pedido encontrado para este filtro.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = lista.map(p => {
+    const metodoEntrega = p.metodo_entrega === 'retirada' ? 'Retirada' : 'Entrega';
+    return `
+      <tr>
+        <td><strong>${p.codigo_rastreio}</strong></td>
+        <td>${p.nome_cliente || '—'}<br><span style="color:var(--text-muted);font-size:.78rem;">${p.telefone_cliente || ''}</span></td>
+        <td>${formatarPreco(p.total)}</td>
+        <td>${metodoEntrega}</td>
+        <td>
+          <select onchange="atualizarStatusPedido('${p.id}', this.value, '${p.codigo_rastreio}', '${(p.telefone_cliente || '').replace(/'/g, "\\'")}' )" style="padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-size:.82rem;">
+            ${STATUS_OPCOES.map(s => `<option value="${s}" ${s === p.status ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
+          </select>
+        </td>
+        <td>${new Date(p.criado_em).toLocaleDateString('pt-BR')}</td>
+        <td><button class="icon-btn" onclick="abrirWhatsAppPedido('${p.telefone_cliente || ''}', '${p.codigo_rastreio}', '${p.status}')" aria-label="Enviar WhatsApp">${iconePartial('chat')}</button></td>
+      </tr>`;
+  }).join('');
+}
+
+function limparTelefoneWhatsApp(telefone) {
+  return (telefone || '').replace(/\D/g, '');
+}
+
+function abrirWhatsAppPedido(telefone, codigo, status) {
+  const telefoneLimpo = limparTelefoneWhatsApp(telefone);
+  if (!telefoneLimpo) {
+    mostrarToast('Telefone do cliente não informado.');
+    return;
+  }
+
+  const statusTexto = {
+    pendente: 'recebido',
+    confirmado: 'confirmado',
+    preparando: 'em preparação',
+    pronto: 'pronto para retirada/entrega',
+    entregue: 'entregue'
+  }[status] || status;
+
+  const baseUrl = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : 'https://mimos-com-encanto.vercel.app';
+  const mensagem = `Olá! Seu pedido ${codigo} está ${statusTexto}. Acompanhe em: ${baseUrl}/acompanhar-pedido.html`;
+  window.open(`https://wa.me/${telefoneLimpo}?text=${encodeURIComponent(mensagem)}`, '_blank');
+}
+
+async function atualizarStatusPedido(id, novoStatus, codigo, telefone) {
   const { error } = await supabaseClient.from('pedidos').update({ status: novoStatus, atualizado_em: new Date().toISOString() }).eq('id', id);
   if (error) { mostrarToast('Erro ao atualizar status.'); return; }
+
   mostrarToast('Status do pedido atualizado.');
+  carregarPedidosAdmin();
+
+  const telefoneLimpo = limparTelefoneWhatsApp(telefone);
+  if (telefoneLimpo) {
+    const statusTexto = {
+      pendente: 'recebido',
+      confirmado: 'confirmado',
+      preparando: 'em preparação',
+      pronto: 'pronto para retirada/entrega',
+      entregue: 'entregue'
+    }[novoStatus] || novoStatus;
+
+    const baseUrl = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : 'https://mimos-com-encanto.vercel.app';
+    const mensagem = `Olá! Seu pedido ${codigo} está ${statusTexto}. Acompanhe o andamento em: ${baseUrl}/acompanhar-pedido.html`;
+    window.open(`https://wa.me/${telefoneLimpo}?text=${encodeURIComponent(mensagem)}`, '_blank');
+  }
 }
 
 // ----------------------------------------------------------------------------

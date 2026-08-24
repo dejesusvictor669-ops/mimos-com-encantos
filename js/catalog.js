@@ -72,12 +72,19 @@ function renderizarProdutos() {
       if (produto) adicionarAoCarrinho(produto);
     });
   });
+
+  grid.querySelectorAll('.product-card-link').forEach(link => {
+    link.addEventListener('click', (event) => {
+      if (event.target.closest('.add-btn')) return;
+      window.location.href = link.dataset.href;
+    });
+  });
 }
 
 function produtoCardHTML(p) {
   const imagem = p.imagem_url || 'https://placehold.co/500x420/FBEAEA/B54B5A?text=Mimos+com+Encanto';
   return `
-    <article class="product-card">
+    <article class="product-card product-card-link" data-href="produto.html?id=${p.id}" style="cursor:pointer;">
       <div class="product-media">
         <span class="product-tag">${labelOcasiao(p.ocasiao)}</span>
         <img src="${imagem}" alt="${p.nome}" loading="lazy">
