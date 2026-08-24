@@ -20,9 +20,12 @@ function mostrarToast(mensagem) {
 }
 
 function gerarCodigoRastreio() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 32 símbolos, sem I/O/0/1 para evitar confusão
+  const tamanho = 8; // 32^8 combinações — acima do que dá para força bruta em tempo hábil
+  const valores = new Uint32Array(tamanho);
+  crypto.getRandomValues(valores);
   let codigo = 'ME-';
-  for (let i = 0; i < 6; i++) codigo += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < tamanho; i++) codigo += chars[valores[i] % chars.length];
   return codigo;
 }
 

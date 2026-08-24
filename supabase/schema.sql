@@ -60,26 +60,32 @@ alter table avaliacoes enable row level security;
 alter table pedidos enable row level security;
 
 -- PRODUTOS: qualquer visitante pode ver produtos ativos.
+drop policy if exists "produtos_select_publico" on produtos;
 create policy "produtos_select_publico" on produtos
   for select using (ativo = true);
 
 -- PRODUTOS: apenas usuário autenticado (a admin) pode inserir/editar/excluir.
+drop policy if exists "produtos_admin_all" on produtos;
 create policy "produtos_admin_all" on produtos
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 -- AVALIAÇÕES: qualquer visitante pode ver.
+drop policy if exists "avaliacoes_select_publico" on avaliacoes;
 create policy "avaliacoes_select_publico" on avaliacoes
   for select using (true);
 
 -- AVALIAÇÕES: apenas a admin gerencia.
+drop policy if exists "avaliacoes_admin_all" on avaliacoes;
 create policy "avaliacoes_admin_all" on avaliacoes
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 -- PEDIDOS: qualquer visitante pode CRIAR um pedido (checkout do carrinho).
+drop policy if exists "pedidos_insert_publico" on pedidos;
 create policy "pedidos_insert_publico" on pedidos
   for insert with check (true);
 
 -- PEDIDOS: só a admin pode listar/editar todos os pedidos.
+drop policy if exists "pedidos_admin_all" on pedidos;
 create policy "pedidos_admin_all" on pedidos
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
@@ -122,23 +128,31 @@ values ('avaliacoes', 'avaliacoes', true)
 on conflict (id) do nothing;
 
 -- Leitura pública das imagens
+drop policy if exists "leitura_publica_produtos" on storage.objects;
 create policy "leitura_publica_produtos" on storage.objects
   for select using (bucket_id = 'produtos');
 
+drop policy if exists "leitura_publica_avaliacoes" on storage.objects;
 create policy "leitura_publica_avaliacoes" on storage.objects
   for select using (bucket_id = 'avaliacoes');
 
 -- Upload/edição/exclusão só para a admin autenticada
+drop policy if exists "admin_upload_produtos" on storage.objects;
 create policy "admin_upload_produtos" on storage.objects
   for insert with check (bucket_id = 'produtos' and auth.role() = 'authenticated');
+drop policy if exists "admin_update_produtos" on storage.objects;
 create policy "admin_update_produtos" on storage.objects
   for update using (bucket_id = 'produtos' and auth.role() = 'authenticated');
+drop policy if exists "admin_delete_produtos" on storage.objects;
 create policy "admin_delete_produtos" on storage.objects
   for delete using (bucket_id = 'produtos' and auth.role() = 'authenticated');
 
+drop policy if exists "admin_upload_avaliacoes" on storage.objects;
 create policy "admin_upload_avaliacoes" on storage.objects
   for insert with check (bucket_id = 'avaliacoes' and auth.role() = 'authenticated');
+drop policy if exists "admin_update_avaliacoes" on storage.objects;
 create policy "admin_update_avaliacoes" on storage.objects
   for update using (bucket_id = 'avaliacoes' and auth.role() = 'authenticated');
+drop policy if exists "admin_delete_avaliacoes" on storage.objects;
 create policy "admin_delete_avaliacoes" on storage.objects
   for delete using (bucket_id = 'avaliacoes' and auth.role() = 'authenticated');

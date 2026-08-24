@@ -2,9 +2,8 @@
 // Painel Administrativo — autenticação + CRUD de produtos, avaliações e pedidos
 // Acesso restrito: só quem tiver login/senha criados no Supabase (a admin)
 // ============================================================================
-
 const emPaginaAdmin = window.location.pathname.includes('/admin/');
-const emLogin = window.location.pathname.endsWith('login.html');
+const emLogin = /\/login(?:\.html)?\/?$/.test(window.location.pathname);
 
 // ----------------------------------------------------------------------------
 // Guarda de rota: garante que só usuário autenticado veja o dashboard
