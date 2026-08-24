@@ -158,27 +158,25 @@ async function finalizarPedido(event) {
     return;
   }
 
-  const linhas = itens.map(i => `• ${i.quantidade}x ${i.nome} — ${formatarPreco(i.preco * i.quantidade)}`).join('\n');
   const entregaTexto = metodoEntrega === 'retirada'
     ? 'Retirada na loja'
     : `Entrega em casa (+ ${formatarPreco(valorEntrega)})`;
 
-  const mensagem =
-`Olá! Gostaria de confirmar meu pedido 🎁
+  const pagamentoTexto = formaPagamento === 'pix'
+    ? 'Pix'
+    : formaPagamento === 'transferencia'
+      ? 'Transferência'
+      : 'Dinheiro';
 
-*Código do pedido:* ${codigo}
-*Nome:* ${nome}
-*Forma de entrega:* ${entregaTexto}
-*Pagamento:* ${formaPagamento === 'pix' ? 'Pix' : formaPagamento === 'transferencia' ? 'Transferência' : 'Dinheiro'}
-
-${linhas}
-
-*Subtotal:* ${formatarPreco(subtotal)}
-*Entrega:* ${formatarPreco(valorEntrega)}
-*Total:* ${formatarPreco(total)}
-${obs ? `\n*Observações:* ${obs}` : ''}
-
-Aguardo a confirmação, obrigado(a)!`;
+  const mensagem = criarMensagemPedido({
+    nome,
+    codigo,
+    itens,
+    total,
+    entregaTexto,
+    pagamentoTexto,
+    observacoes: obs
+  });
 
   localStorage.removeItem(CARRINHO_KEY);
   window.location.href = linkWhatsapp(mensagem);

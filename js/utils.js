@@ -71,6 +71,59 @@ function linkWhatsapp(mensagem) {
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
 }
 
+function formatarTelefone(telefone) {
+  const valor = String(telefone || '').replace(/\D/g, '');
+  if (valor.length === 11) {
+    return `(${valor.slice(0, 2)}) ${valor.slice(2, 7)}-${valor.slice(7)}`;
+  }
+  if (valor.length === 10) {
+    return `(${valor.slice(0, 2)}) ${valor.slice(2, 6)}-${valor.slice(6)}`;
+  }
+  return valor || 'Não informado';
+}
+
+function criarMensagemPedido({ nome, codigo, itens, total, entregaTexto, pagamentoTexto, observacoes = '' }) {
+  const linhas = itens.map(i => `• ${i.quantidade}x ${i.nome} — ${formatarPreco(i.preco * i.quantidade)}`).join('\n');
+  const observacaoTexto = observacoes ? `\n*Observações:* ${observacoes}` : '';
+
+  return `Olá! Gostaria de confirmar meu pedido 🎁\n\n` +
+    `*Código do pedido:* ${codigo}\n` +
+    `*Nome:* ${nome}\n` +
+    `*Forma de entrega:* ${entregaTexto}\n` +
+    `*Pagamento:* ${pagamentoTexto}\n\n` +
+    `${linhas}\n\n` +
+    `*Total:* ${formatarPreco(total)}${observacaoTexto}\n\n` +
+    `Aguardo a confirmação, obrigado(a)!`;
+}
+
+function injetarDadosEstruturados() {
+  const existing = document.querySelector('script[data-schema="local-business"]');
+  if (existing) return;
+
+  const payload = {
+    '@context': 'https://schema.org',
+    '@type': 'Store',
+    name: 'Mimos com Encanto',
+    image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=800&auto=format&fit=crop',
+    description: 'Cestas, kits, canecas e presentes personalizados com atenção aos detalhes e entrega com carinho.',
+    telephone: '+55-31-97266-7424',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Betim',
+      addressRegion: 'MG',
+      addressCountry: 'BR'
+    },
+    priceRange: '$$',
+    url: 'https://mimos-com-encanto.vercel.app/'
+  };
+
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.dataset.schema = 'local-business';
+  script.textContent = JSON.stringify(payload);
+  document.head.appendChild(script);
+}
+
 // Ícones (mesma família de linha, para não misturar estilos)
 const ICONS = {
   bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
@@ -94,26 +147,30 @@ function iconePartial(nome) { return ICONS[nome] || ''; }
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
   const badge = document.querySelector('.brand-badge');
-  if (!badge) return;
+  if (badge) {
+    let cliques = 0;
+    let timer = null;
+    badge.style.cursor = 'pointer';
 
-  let cliques = 0;
-  let timer = null;
-  badge.style.cursor = 'pointer';
+    badge.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-  badge.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+      cliques++;
+      clearTimeout(timer);
+      timer = setTimeout(() => { cliques = 0; }, 1200);
 
-    cliques++;
-    clearTimeout(timer);
-    timer = setTimeout(() => { cliques = 0; }, 1200);
+      if (cliques >= 3) {
+        cliques = 0;
+        const emAdmin = window.location.pathname.includes('/admin/');
+        window.location.href = emAdmin ? 'login.html' : 'admin/login.html';
+      }
+    });
+  }
 
-    if (cliques >= 3) {
-      cliques = 0;
-      const emAdmin = window.location.pathname.includes('/admin/');
-      window.location.href = emAdmin ? 'login.html' : 'admin/login.html';
-    }
-  });
+  if (!window.location.pathname.includes('/admin/')) {
+    injetarDadosEstruturados();
+  }
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
