@@ -181,14 +181,26 @@ async function salvarProduto(event) {
     };
     if (imagemUrl) payload.imagem_url = imagemUrl;
 
-    const { error } = await comLimiteDeTempo(
+    let resposta = await comLimiteDeTempo(
       id
         ? supabaseClient.from('produtos').update(payload).eq('id', id)
         : supabaseClient.from('produtos').insert(payload),
       'O Supabase demorou demais para responder.'
     );
 
-    if (error) throw error;
+    // Permite salvar produtos em bancos antigos antes da migração do schema.
+    if (resposta.error?.code === 'PGRST204' && resposta.error.message.includes('imagens_adicionais')) {
+      const payloadCompatibilidade = { ...payload };
+      delete payloadCompatibilidade.imagens_adicionais;
+      resposta = await comLimiteDeTempo(
+        id
+          ? supabaseClient.from('produtos').update(payloadCompatibilidade).eq('id', id)
+          : supabaseClient.from('produtos').insert(payloadCompatibilidade),
+        'O Supabase demorou demais para responder.'
+      );
+    }
+
+    if (resposta.error) throw resposta.error;
 
     mostrarToast('Produto salvo com sucesso!');
     fecharModais();

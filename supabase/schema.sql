@@ -24,6 +24,13 @@ create table if not exists produtos (
   criado_em timestamptz default now()
 );
 
+-- Mantém projetos já existentes compatíveis com o cadastro atual.
+alter table produtos add column if not exists imagens_adicionais jsonb default '[]'::jsonb;
+alter table produtos add column if not exists ocasiao text default 'outro';
+alter table produtos add column if not exists categoria text default 'outro';
+alter table produtos add column if not exists ativo boolean default true;
+alter table produtos add column if not exists destaque boolean default false;
+
 -- ----------------------------------------------------------------------------
 -- Tabela: avaliacoes
 -- ----------------------------------------------------------------------------
