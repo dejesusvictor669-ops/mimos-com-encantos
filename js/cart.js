@@ -104,11 +104,13 @@ function renderizarCarrinho() {
 function abrirCarrinho() {
   document.querySelector('.cart-overlay')?.classList.add('open');
   document.querySelector('.cart-drawer')?.classList.add('open');
+  document.body.classList.add('cart-open');
   renderizarCarrinho();
 }
 function fecharCarrinho() {
   document.querySelector('.cart-overlay')?.classList.remove('open');
   document.querySelector('.cart-drawer')?.classList.remove('open');
+  document.body.classList.remove('cart-open');
 }
 
 // ----------------------------------------------------------------------------
@@ -189,6 +191,10 @@ async function finalizarPedido(event) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') fecharCarrinho();
+  });
+
   const entregaSelect = document.getElementById('checkout-entrega');
   if (entregaSelect) {
     entregaSelect.addEventListener('change', atualizarResumoCheckout);
